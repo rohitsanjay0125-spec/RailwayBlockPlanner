@@ -1,4 +1,9 @@
 def find_best_block(trains, section, duration):
+    """
+    Find the best time slot for a train/block
+    while minimizing conflicts with existing trains.
+    """
+
     section_trains = [
         train for train in trains
         if train["section"] == section
@@ -7,14 +12,22 @@ def find_best_block(trains, section, duration):
     best_start = None
     best_conflicts = float("inf")
 
+    # Check every possible starting hour
     for start in range(0, 24 - duration + 1):
+
         end = start + duration
         conflicts = 0
 
+        # Check overlap with existing trains
         for train in section_trains:
-            if start < train["end_time"] and end > train["start_time"]:
+
+            train_start = int(train["start_time"])
+            train_end = int(train["end_time"])
+
+            if start < train_end and end > train_start:
                 conflicts += 1
 
+        # Select slot having minimum conflicts
         if conflicts < best_conflicts:
             best_conflicts = conflicts
             best_start = start

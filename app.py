@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 
 from database import init_database, get_connection
 from planner import find_best_block, format_time
@@ -30,6 +30,58 @@ def home():
     )
 
 
+@app.route("/add_train", methods=["POST"])
+def add_train():
+    train_number = request.form["train_number"]
+    train_name = request.form["train_name"]
+    section = request.form["section"]
+    start_time = int(request.form["start_time"])
+    end_time = int(request.form["end_time"])
+
+    conn = get_connection()
+
+    conn.execute("""
+        INSERT INTO trains
+        (train_number, train_name, section, start_time, end_time)
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        train_number,
+        train_name,
+        section,
+        start_time,
+        end_time
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/")
+
+
+@app.route("/add_asset", methods=["POST"])
+def add_asset():
+    asset_name = request.form["asset_name"]
+    section = request.form["section"]
+    status = request.form["status"]
+
+    conn = get_connection()
+
+    conn.execute("""
+        INSERT INTO assets
+        (asset_name, section, status)
+        VALUES (?, ?, ?)
+    """, (
+        asset_name,
+        section,
+        status
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/")
+
+
 @app.route("/plan", methods=["POST"])
 def plan():
     section = request.form["section"]
@@ -53,6 +105,11 @@ def plan():
         duration
     )
 
+    result["available_assets"] = sum(
+        1 for asset in assets
+        if asset["status"] == "Available"
+    )
+
     conn.close()
 
     result["start_time"] = format_time(result["start"])
@@ -67,4 +124,8 @@ def plan():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
