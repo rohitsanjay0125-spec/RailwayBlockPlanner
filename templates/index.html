@@ -97,7 +97,61 @@
     </header>
 
     <div class="container">
+<!-- Add Train -->
 
+<div class="card">
+
+    <h2>➕ Add New Train</h2>
+
+    <form action="/add_train" method="POST">
+
+        <input
+            type="text"
+            name="train_number"
+            placeholder="Train Number"
+            required
+        >
+
+        <input
+            type="text"
+            name="train_name"
+            placeholder="Train Name"
+            required
+        >
+
+        <input
+            type="text"
+            name="section"
+            placeholder="Section"
+            value="Bhopal-Itarsi"
+            required
+        >
+
+        <input
+            type="number"
+            name="start_time"
+            placeholder="Start Hour (0-23)"
+            min="0"
+            max="23"
+            required
+        >
+
+        <input
+            type="number"
+            name="end_time"
+            placeholder="End Hour (1-24)"
+            min="1"
+            max="24"
+            required
+        >
+
+        <button type="submit">
+            Add Train
+        </button>
+
+    </form>
+
+</div>
         <!-- Block Request -->
 
         <div class="card">
@@ -163,6 +217,10 @@
             <p>
                 <b>Train Conflicts:</b>
                 {{ result.conflicts }}
+                <p>
+                    <b>Available Assests:</b>
+                    {{ result.available_assets }}
+                </p>
             </p>
 
             {% if result.conflicts == 0 %}
@@ -227,7 +285,42 @@
 
         </div>
 
+<!-- Add Asset -->
 
+<div class="card">
+
+    <h2>➕ Add Railway Asset</h2>
+
+    <form action="/add_asset" method="POST">
+
+        <input
+            type="text"
+            name="asset_name"
+            placeholder="Asset Name"
+            required
+        >
+
+        <input
+            type="text"
+            name="section"
+            placeholder="Section"
+            value="Bhopal-Itarsi"
+            required
+        >
+
+        <select name="status">
+            <option value="Available">Available</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Blocked">Blocked</option>
+        </select>
+
+        <button type="submit">
+            Add Asset
+        </button>
+
+    </form>
+
+</div>
         <!-- Assets -->
 
         <div class="card">
