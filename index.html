@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Railway Block Planner</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #17202a;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #ddd;
+        }
+
+        input,
+        select,
+        button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #17202a;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #34495e;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #eee;
+        }
+
+        .result {
+            background: #e8f5e9;
+            border-left: 5px solid #2e7d32;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #f0ad4e;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🚆 AI-Powered Automatic Block Planner</h1>
+        <p>Indian Railway Asset Availability Optimization</p>
+    </header>
+
+    <div class="container">
+<!-- Add Train -->
+
+<div class="card">
+
+    <h2>➕ Add New Train</h2>
+
+    <form action="/add_train" method="POST">
+
+        <input
+            type="text"
+            name="train_number"
+            placeholder="Train Number"
+            required
+        >
+
+        <input
+            type="text"
+            name="train_name"
+            placeholder="Train Name"
+            required
+        >
+
+        <input
+            type="text"
+            name="section"
+            placeholder="Section"
+            value="Bhopal-Itarsi"
+            required
+        >
+
+        <input
+            type="number"
+            name="start_time"
+            placeholder="Start Hour (0-23)"
+            min="0"
+            max="23"
+            required
+        >
+
+        <input
+            type="number"
+            name="end_time"
+            placeholder="End Hour (1-24)"
+            min="1"
+            max="24"
+            required
+        >
+
+        <button type="submit">
+            Add Train
+        </button>
+
+    </form>
+
+</div>
+        <!-- Block Request -->
+
+        <div class="card">
+
+            <h2>Maintenance Block Request</h2>
+
+            <form action="/plan" method="POST">
+
+                <label>
+                    Section:
+                </label>
+
+                <select name="section">
+
+                    <option value="Bhopal-Itarsi">
+                        Bhopal-Itarsi
+                    </option>
+
+                </select>
+
+                <label>
+                    Duration:
+                </label>
+
+                <select name="duration">
+
+                    <option value="1">1 Hour</option>
+                    <option value="2">2 Hours</option>
+                    <option value="3">3 Hours</option>
+                    <option value="4">4 Hours</option>
+
+                </select>
+
+                <button type="submit">
+                    Find Best Block
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- Recommendation -->
+
+        {% if result %}
+
+        <div class="card result">
+
+            <h2>🤖 Recommended Block</h2>
+
+            <p>
+                <b>Section:</b>
+                Bhopal-Itarsi
+            </p>
+
+            <p>
+                <b>Recommended Time:</b>
+                {{ result.start_time }}
+                -
+                {{ result.end_time }}
+            </p>
+
+            <p>
+                <b>Train Conflicts:</b>
+                {{ result.conflicts }}
+                <p>
+                    <b>Available Assests:</b>
+                    {{ result.available_assets }}
+                </p>
+            </p>
+
+            {% if result.conflicts == 0 %}
+
+            <h3>✅ Optimal Block — No Train Conflict</h3>
+
+            {% else %}
+
+            <h3 class="warning">
+                ⚠️ Block has {{ result.conflicts }} train conflict(s)
+            </h3>
+
+            {% endif %}
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- Train Schedule -->
+
+        <div class="card">
+
+            <h2>🚆 Train Schedule</h2>
+
+            <table>
+
+                <tr>
+                    <th>Train Number</th>
+                    <th>Train Name</th>
+                    <th>Section</th>
+                    <th>Time</th>
+                </tr>
+
+                {% for train in trains %}
+
+                <tr>
+
+                    <td>
+                        {{ train.train_number }}
+                    </td>
+
+                    <td>
+                        {{ train.train_name }}
+                    </td>
+
+                    <td>
+                        {{ train.section }}
+                    </td>
+
+                    <td>
+                        {{ "%02d:00"|format(train.start_time) }}
+                        -
+                        {{ "%02d:00"|format(train.end_time) }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+<!-- Add Asset -->
+
+<div class="card">
+
+    <h2>➕ Add Railway Asset</h2>
+
+    <form action="/add_asset" method="POST">
+
+        <input
+            type="text"
+            name="asset_name"
+            placeholder="Asset Name"
+            required
+        >
+
+        <input
+            type="text"
+            name="section"
+            placeholder="Section"
+            value="Bhopal-Itarsi"
+            required
+        >
+
+        <select name="status">
+            <option value="Available">Available</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Blocked">Blocked</option>
+        </select>
+
+        <button type="submit">
+            Add Asset
+        </button>
+
+    </form>
+
+</div>
+        <!-- Assets -->
+
+        <div class="card">
+
+            <h2>🛠 Railway Assets</h2>
+
+            <table>
+
+                <tr>
+                    <th>Asset</th>
+                    <th>Section</th>
+                    <th>Status</th>
+                </tr>
+
+                {% for asset in assets %}
+
+                <tr>
+
+                    <td>
+                        {{ asset.asset_name }}
+                    </td>
+
+                    <td>
+                        {{ asset.section }}
+                    </td>
+
+                    <td>
+                        {{ asset.status }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
