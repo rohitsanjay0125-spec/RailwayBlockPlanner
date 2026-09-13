@@ -272,9 +272,9 @@
                     </td>
 
                     <td>
-                        {{ "%02d:00"|format(train.start_time) }}
+                        {{ "%02d:00"|format(train.start_time|int) }}
                         -
-                        {{ "%02d:00"|format(train.end_time) }}
+                        {{ "%02d:00"|format(train.end_time|int) }}
                     </td>
 
                 </tr>
